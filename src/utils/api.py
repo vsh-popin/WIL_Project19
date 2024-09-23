@@ -33,9 +33,7 @@ def query_time_series_data(coordinates, startdate, enddate, username, password):
     """
     interval = timedelta(days=1)
     # Weather Parameters
-    parameters = [
-    't_max_2m_24h:C', 't_min_2m_24h:C', 'wind_speed_10m:ms','msl_pressure:hPa','precip_24h:mm','uv:idx'
-    ]
+    parameters = ['t_max_2m_24h:C', 't_min_2m_24h:C', 'wind_speed_10m:ms', 'precip_24h:mm', 'msl_pressure:hPa','uv:idx']
     #print(coordinates,startdate,enddate,interval,parameters,username,password)
     try:
         # Make the API call

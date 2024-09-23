@@ -3,13 +3,13 @@ from flask import Flask, session, render_template, request
 import utils.regex as reg
 import utils.api as api
 import utils.model as weather_model
-from datetime import datetime, timezone
+from datetime import datetime,timedelta, timezone
 import dateparser
 import configparser
-import pandas as pd
+#import pandas as pd
 import torch
 #from sklearn.preprocessing import MinMaxScaler
-from models.predict_model import CNNWeatherPredictor
+from models.predict_model import TCNWeatherPredictor,TemporalBlock
 app = Flask(__name__, static_folder="templates/static")
 
 chatbot = ChatBot('MyBot')
@@ -98,7 +98,7 @@ def get_weather(city, date=None):
     
     if lat is None or lon is None:
         return f"Sorry, I couldn't find the location for {city}."
-    print("get_weather=====") 
+    
     print(lat,lon)
     # Coordinates as a tuple
     coordinates = [(lat, lon)]
@@ -117,43 +117,36 @@ def get_weather(city, date=None):
     
     # Define the enddate as the given or current date and calculate the startdate (90 days before)
     enddate = date
-    startdate= date #FIXME
-    #startdate = enddate - timedelta(days=89)  # Subtract 90 days from enddate
+    startdate = enddate - timedelta(days=89)  # Subtract 90 days from enddate
     #print("enddate=",enddate)
     #print("startdate=",startdate)
 
-
-    #try:
+    try:
         # Call the Meteomatics API for a time series
-        #df = api.query_time_series_data(coordinates, startdate, enddate, username, password)
-       
-    df = pd.read_csv("/Users/popin/Documents/GitHub/Chatbot/data/mockdata.csv", header=None)
-    if df is None:
-        return "Sorry, I couldn't retrieve the data."
-    print(df)
+        df = api.query_time_series_data(coordinates, startdate, enddate, username, password)
+        #df = pd.read_csv("/Users/popin/Documents/GitHub/Chatbot/data/mockdata.csv", header=None) #FIXME
+        if df is None:
+            return "Sorry, I couldn't retrieve the data."
+        print(df)
     
+        # Load scaler and model
+        scaler = weather_model.load_scaler('./models/scaler.pkl')
+        data_scaled = weather_model.scale_data(scaler,df)
+        
+        #model = weather_model.load_model('./models/CNN_Model_12Sep.pth')
+        model= torch.load('./models/tcn_6_attr.pth', map_location=torch.device('cpu'))
+        model.eval()
+    
+        # Make prediction
+        predicted_values = weather_model.make_prediction(model, data_scaled)
+        for row in (predicted_values):
+            print(["{:.2f}".format(x) for x in row])
+        
+        weather_report = generate_weather_report(predicted_values, city, date)
 
-    # Load scaler and model
-    scaler = weather_model.load_scaler('./models/scaler.pkl')
-    data_scaled = weather_model.scale_data(scaler,df)
-    
-    #model = weather_model.load_model('./models/CNN_Model_12Sep.pth')
-    model= torch.load('./models/CNN_Model_12Sep.pth', map_location=torch.device('cpu'))
-    model.eval()
- 
-    # Make prediction
-    predicted_values = weather_model.make_prediction(model, data_scaled, scaler)
-    #print(predicted_values)
-    
-    weather_report = generate_weather_report(predicted_values, city, date)
-
-    # # Now you can print or return the weather report
-    # for report in weather_report:
-    #     print(report)
-    
-    return weather_report
-    #except Exception as e:
-       # return f"Sorry, I couldn't retrieve the weather for {city}. Error: {str(e)}"
+        return weather_report
+    except Exception as e:
+        return f"Sorry, I couldn't retrieve the weather for {city}. Error: {str(e)}"
     
 def generate_weather_report(predicted_values, city, date):
 
@@ -163,8 +156,8 @@ def generate_weather_report(predicted_values, city, date):
         max_temp = row[0]
         min_temp = row[1]
         wind_speed = row[2]
-        pressure = row[3]
-        precipitation = row[4]
+        precipitation = row[3]
+        pressure = row[4]
         uv_index = row[5]
 
         report = (

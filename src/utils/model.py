@@ -21,7 +21,7 @@ def scale_data(scaler,df):
     df_np = df.to_numpy()
     df_scaler = scaler.transform(df_np)
     data_scaled = torch.tensor(df_scaler, dtype=torch.float32).unsqueeze(0)
-
+ 
     return data_scaled
 
 def load_model(model_path):
@@ -32,14 +32,13 @@ def load_model(model_path):
     
     return model.eval()
 
-def make_prediction(model,data_scaled,scaler):
+def make_prediction(model,data_scaled):
     with torch.no_grad():  # Disable gradients for inference
         prediction = model(data_scaled)
     #print(prediction)
         # Inverse transform the predictions to get them back to the original scale
     predicted_values = prediction.cpu().numpy().reshape(-1, 6)  # Convert to numpy
-    predicted_values = scaler.inverse_transform(predicted_values)
-    print('====')
-    print(predicted_values)
+    #predicted_values = scaler.inverse_transform(predicted_values)
+    predicted_values[:, 2:] = np.where(predicted_values[:, 2:] < 0, 0, predicted_values[:, 2:])
     return predicted_values
 
