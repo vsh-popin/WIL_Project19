@@ -34,6 +34,7 @@ def before_request(): # Initialize the session variables
     if 'date' not in session:
         session['date'] = None
         session['date_text'] = None
+    session['trip'] = None
 
 @app.route("/get", methods=["POST"])
 def get_bot_response():
@@ -44,28 +45,41 @@ def get_bot_response():
 
     # Check for weather-related or city-related queries
     city = reg.find_australian_city_in_input(user_text)
-    
+    trip_check = reg.is_suggestion_trip_related(user_text)
     # Debugging prints
     print("date=", date)
     print("city=", city)
-    
+    print("trip=", trip_check)
+    session['trip'] = trip_check
+    print(session['trip'] , session['trip_detail'])
     # If both city and date are provided in the same input
+
     if city and date:
         session['city'] = city
         session['date'] = date
         session['date_text'] = msg
+        session['trip'] = trip_check
 
         response = get_weather(city, date)
         # Reset session variables after use
         reset_session()
+                # Ask a follow-up question
+        #session['state'] = 'waiting_for_yes_no'  # Set the state to wait for the user's yes/no response
+        if trip_check:
+            response = suggest_trip_based_on_weather()
+
         return response
+        #return response
 
     # If only city is detected
     elif city:
         session['city'] = city
+        if session['trip'] == None:   session['trip'] = trip_check
         if session['date']:
             response = get_weather(city, session['date'])
             # Reset after use
+            if trip_check:
+                response = suggest_trip_based_on_weather()
             reset_session()
         else:
             return f"Cool! I have got [{city}] down. When do you need the weather for? You can say something like 'tomorrow' or 'in 3 days'."
@@ -74,8 +88,11 @@ def get_bot_response():
     elif date:
         session['date'] = date
         session['date_text'] = msg
+        if session['trip'] == None:   session['trip'] = trip_check
         if session['city']:
             response = get_weather(session['city'], date)
+            if trip_check:
+                response = suggest_trip_based_on_weather()
             # Reset after use
             reset_session()
         else:
@@ -87,6 +104,8 @@ def get_bot_response():
             return f"You're asking about the weather in [{session['city']}]. Now, when do you need the forecast? Maybe 'tomorrow' or 'in a few days'?"
         elif session['date']:
             return f"I've noted [{session['date_text']}]. Could you let me know which Australian city you'd like the weather for?"
+        elif session['trip'] and session['trip_detail']:
+            return suggest_trip_based_on_weather()
         else:
             return "Could you tell me both a city in Australia and a time period you're interested in?"
 
@@ -99,7 +118,7 @@ def get_weather(city, date=None):
     if lat is None or lon is None:
         return f"Sorry, I couldn't find the location for {city}."
     
-    print(lat,lon)
+    #print(lat,lon)
     # Coordinates as a tuple
     coordinates = [(lat, lon)]
     
@@ -127,7 +146,7 @@ def get_weather(city, date=None):
         #df = pd.read_csv("/Users/popin/Documents/GitHub/Chatbot/data/mockdata.csv", header=None) #FIXME
         if df is None:
             return "Sorry, I couldn't retrieve the data."
-        print(df)
+        #print(df)
     
         # Load scaler and model
         scaler = weather_model.load_scaler('./models/scaler.pkl')
@@ -139,8 +158,8 @@ def get_weather(city, date=None):
     
         # Make prediction
         predicted_values = weather_model.make_prediction(model, data_scaled)
-        for row in (predicted_values):
-            print(["{:.2f}".format(x) for x in row])
+        #for row in (predicted_values):
+        #    print(["{:.2f}".format(x) for x in row])
         
         weather_report = generate_weather_report(predicted_values, city, date)
 
@@ -171,14 +190,24 @@ def generate_weather_report(predicted_values, city, date):
         )
         
         weather_report.append(report)
+        trip_detail = row.tolist()  # Convert to list if it's a NumPy or Pandas object
+
+        # Ensure city is a string
+        trip_detail.append(str(city))
+
+        # Store the array in session
+        session['trip_detail'] = trip_detail
     
-    return weather_report
+    return weather_report  
 
 def reset_session():
     """Reset session variables."""
     session['city'] = None
     session['date'] = None
     session['date_text'] = None
+
+    #session['state'] = 'waiting_for_trip_suggestion'
+    
 def extract_time_from_input(user_input):
 
     processed_date, msg = reg.preprocess_relative_dates(user_input)
@@ -199,6 +228,18 @@ def extract_time_from_input(user_input):
     else:
         print("Debug: No date found.")
         return None, "Sorry, Could you provide period time from your input."
+
+def suggest_trip_based_on_weather():
+
+    print("trip_detail3=", session['trip_detail'])
+ 
+    if session['trip_detail']:
+        session['trip'] = None
+        #return "test"
+        trip_detail = session['trip_detail']
+        return f"I recommend visiting {trip_detail[6]}! Based on the weather details, it's a great time to explore the area."
+    else:
+        return "I don't have enough information to suggest a trip. Please ask for the weather first."
 
 if __name__ == "__main__":
     app.run(debug=True)
