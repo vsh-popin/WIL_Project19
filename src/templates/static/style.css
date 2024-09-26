@@ -1,69 +1,146 @@
-/* Style for the chat container */
-.chat-container {
-    max-width: 600px;
-    margin: 50px auto;
-    border: 1px solid #ccc;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-}
-
-/* Style for the chat box */
-.chat-box {
-    height: 400px;
-    overflow-y: auto;
-    padding: 10px;
-    border: 1px solid #ddd;
-    background-color: #fff;
-    border-radius: 10px;
-    margin-bottom: 10px;
-}
-
-/* Style for user messages */
-.user-message {
-    text-align: right;
-    color: #fff;
-    background-color: #007bff;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 15px;
-    max-width: 70%;
-    margin-left: auto;
-}
-
-/* Style for bot messages */
-.bot-message {
-    text-align: left;
-    color: #333;
-    background-color: #f1f1f1;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 15px;
-    max-width: 70%;
-    margin-right: auto;
-}
-
-/* Style for the input field and button */
-#chat-form {
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; 
+    font-family: 'Arial', sans-serif;
+    background-color: #f0f2f5;
+  }
+  
+  .chat-header {
+    position: relative; /* Needed for absolute positioning of the child */
     display: flex;
-}
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #673ab7;  
+    color: white;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    border-top-left-radius: 8px; 
+    border-top-right-radius: 8px;
+  }
 
-#user-input {
+  .header-title {
     flex-grow: 1;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
+    text-align: center;
 }
 
-button {
+  
+  .chat-container {
+    width: 100%;
+    max-width: 600px;
+    height: 100vh;
+    margin: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    overflow: hidden;
+  }
+  
+  .suggestions {
+    padding: 10px;
+    display: flex;
+    justify-content: space-around;  /* Distributes the buttons evenly */
+    background-color: #f0f2f5;
+  }
+  
+  .suggestion-btn {
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: none;
+    background-color: #9cc0e6;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+    margin: 0 5px;  /* Adds space between buttons */
+  }
+  
+  .suggestion-btn:hover {
+    background-color: #a6b3bf;
+  }
+  
+  
+  
+  #chatbox {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-bottom: 1px solid #ccc;  /* Adds a subtle line between messages and input area */
+  }
+  
+  
+  .botText, .userText {
+    padding: 10px 20px;
+    border-radius: 18px;
+    color: white;
+    display: flex;
+    max-width: 80%;
+    word-wrap: break-word;
+  }
+  
+  .botText {
+    background-color: #007bff;
+    font-size: 18px;
+    align-self: flex-start;
+  }
+  
+  .userText {
+    background-color: #4CAF50;
+    font-size: 18px;
+    align-self: flex-end;
+  }
+  
+  .user-input {
+    padding: 10px;
+    font-size: 18px;
+    display: flex;
+    background-color: #f0f2f5;
+    border-top: 1px solid #ccc;
+  }
+  
+  input[type="text"] {
+    flex-grow: 1;
+    margin-right: 10px;
+    padding: 10px 15px;
+    border: 2px solid #ccc;
+    border-radius: 30px;
+    outline: none;
+  }
+  
+  button {
+    padding: 10px 20px;
+    border-radius: 30px;
+    border: none;
     background-color: #007bff;
     color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
     cursor: pointer;
-}
-
-button:hover {
+  }
+  
+  button:hover {
     background-color: #0056b3;
-}
+  }
+  
+  #deleteButton {
+    position: absolute; 
+    right: 10px; 
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px; 
+    cursor: pointer;
+  }
+
+
+
+
+
+  
+  
