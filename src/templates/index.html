@@ -3,36 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }} " type="text/css" media="all" />
 </head>
+
+
 <body>
     <div class="chat-container">
-        <div class="chat-box" id="chat-box">
-            <div class="bot-message">Welcome! Let me know if you need a weather update!</div>
+        <div class="chat-header">
+            <button id="deleteButton" class="btn btn-danger">↻</button>
+            <span class="header-title">Weather Chatbot</span>
         </div>
-        <form id="chat-form">
-            <input type="text" id="user-input" autocomplete="off" placeholder="Type a message..." required>
-            <button type="submit">Send</button>
-        </form>
+
+        <div id="chatbox">
+            <p class="botText"><span>Welcome! Ask me anything about today's weather or where to visit.</span></p>
+        </div>
+        <div class="suggestions">
+            <!-- Suggested questions -->
+            <button class="suggestion-btn">What's the weather look like today?</button>
+            <button class="suggestion-btn">Recommend a place to visit </button>
+        </div>
+        <div class="user-input">
+            <input type="text" id="textInput" class="form-control" placeholder="Type your message here...">
+            <button id="buttonInput" class="btn btn-primary">Send</button>
+        </div>
     </div>
 
-    <script>
-        $(document).ready(function() {
-            $("#chat-form").on("submit", function(e) {
-                e.preventDefault();
-                var userMessage = $("#user-input").val();
-                $("#chat-box").append('<div class="user-message">' + userMessage + '</div>');
-                $("#user-input").val("");
+    <div id="weatherWidget" class="weather-widget hidden">
+    <h2 id="weatherCity">City, Date</h2>
+    <div id="weatherDetails">
+        <p id="maxTemp"></p>
+        <p id="minTemp"></p>
+        <p id="windSpeed"></p>
+        <p id="precipitation"></p>
+        <p id="pressure"></p>
+        <p id="uvIndex"></p>
+    </div>
+</div>
 
-                $.post("/get", {msg: userMessage}, function(response) {
-                    $("#chat-box").append('<div class="bot-message">' + response + '</div>');
-                    $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
-                });
-            });
+    </div>
+    
+    
+    <script>
+document.getElementById("buttonInput").addEventListener("click", sendMessage);
+
+document.querySelectorAll('.suggestion-btn').forEach(button => {
+    button.addEventListener('click', function() {
+        let suggestionText = this.textContent;
+        sendMessage(suggestionText);
+    });
+});
+
+function sendMessage(text = null) {
+    let userText = text || document.getElementById("textInput").value;
+    if (!userText.trim()) return; // Avoid sending empty messages
+
+    document.getElementById("chatbox").innerHTML += `<div class="userText"><span>${userText}</span></div>`;
+
+    let formData = new FormData();
+    formData.append("msg", userText);
+
+    fetch("/get", {
+        method: "POST",
+        body: formData
+    }).then(response => response.text())
+    .then(text => {
+        document.getElementById("chatbox").innerHTML += `<div class="botText"><span>${text}</span></div>`; //apart from bot text 
+        document.getElementById("textInput").value = "";  // Clear input after send
+        let chatbox = document.getElementById("chatbox");
+        chatbox.scrollTop = chatbox.scrollHeight;
+    });
+}
+
+        // Event listener for the button click
+        document.getElementById("buttonInput").addEventListener("click", sendMessage);
+    
+        // Event listener for the enter key in the input field
+        document.getElementById("textInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevent the default action to stop from form submitting
+                sendMessage(); // Send the message
+            }
         });
+
+
+
     </script>
 
+    <script>
+    document.getElementById('deleteButton').addEventListener('click', function() {
+        window.location.reload(true); // The 'true' parameter forces the reload without cache
+    });
+    </script>
+
+
+
+    
 </body>
 </html>

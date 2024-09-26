@@ -1,0 +1,10 @@
+@Reading
+@Movie
+@Cooking
+@Gardening
+@Yoga
+@Cycling
+@Swimming
+@Board games
+@Meditation
+@Jogging
