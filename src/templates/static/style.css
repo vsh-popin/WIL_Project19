@@ -208,16 +208,44 @@ body, html {
 }
   
 #chatbox
+/* Container for the card including the header */
+.activity-container {
+  margin: 20px;
+}
+
+/* Header for the suggested activity */
+.activity-header {
+  font-size: 24px;
+  font-weight: bold;
+  /* margin-bottom: 15px; */
+  text-align: center;
+  color: #333;
+}
+
 /* Container for the activity card */
 .activity-card {
-  background-color: #e8f7fa;
+  background-color: #faf0e8;
   border-radius: 10px;
   padding: 20px;
   margin: 15px 0;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Section for the icon and activity name */
+.activity-card .activity-icon {
+  flex: 1;
+  text-align: center;
+}
+
+/* Icon for activity */
+.activity-card .activity-icon img {
+  max-height: 70px;
+  max-width: 70px;
+  margin-bottom: 10px;
 }
 
 /* Header with activity name */
@@ -225,29 +253,21 @@ body, html {
   font-size: 20px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 8px;
   text-align: center;
+  margin-top: 5px;
 }
 
-/* Description text */
-.activity-card .description {
-  font-size: 14px;
-  color: #555;
-  text-align: center;
-  margin-bottom: 12px;
-}
-
-/* Activity data section */
-.activity-card .activity-info {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-}
-
-/* Individual activity data item */
-.activity-card .activity-item {
+/* Section for details (temperature and notes) */
+.activity-card .activity-details {
+  flex: 2;
   display: flex;
   flex-direction: column;
+  gap: 10px;
+}
+
+/* Temperature item */
+.activity-card .activity-temp {
+  display: flex;
   align-items: center;
   background-color: #ffffff;
   border-radius: 8px;
@@ -255,25 +275,46 @@ body, html {
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
 }
 
-/* Label for each activity item */
-.activity-card .activity-item .label {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 5px;
+/* Icon for temperature */
+.activity-card .activity-temp img {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
 }
 
-/* Value for each activity item */
-.activity-card .activity-item .value {
+/* Temperature label and value */
+.activity-card .activity-temp .label {
+  font-size: 14px;
+  color: #666;
+  margin-right: 5px;
+}
+
+.activity-card .activity-temp .value {
   font-size: 16px;
   font-weight: bold;
   color: #444;
 }
 
-/* UV suggestion */
-.activity-card .uv-suggestion {
+/* Notes item */
+.activity-card .activity-notes {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Icon for notes */
+.activity-card .activity-notes img {
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+}
+
+/* Notes text */
+.activity-card .activity-notes .notes-text {
   font-size: 14px;
+  font-weight: bold;
   color: #444;
-  margin-top: 10px;
-  text-align: center;
-  font-style: italic;
 }

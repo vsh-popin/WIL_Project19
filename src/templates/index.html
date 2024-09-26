@@ -145,29 +145,54 @@ function sendMessage(text = null) {
     else if(flagType == 2){ // Activity Card
       let activityName = data.message[0]
       let description = data.message[1]
-      let maxTemp = data.message[2]
-      let minTemp = data.message[3]
+      let maxTemp = data.message[3]
+      let minTemp = data.message[2]
       let uvIndex = data.message[4]
+      let image_path = ""
+      if(activityName == "Picnicking") {
+            image_path = "/static/picnic.png"
+        }
+      else if(activityName == "Hiking"){
+        image_path = "/static/hiking.png"
+      }
+      else if(activityName == "Cycling"){
+        image_path = "/static/cycling.png"
+      }
+      else{
+        image_path = "/static/base_activity.png"
+      }
 
       document.getElementById("chatbox").innerHTML += `
+      <!-- Header for the suggested activity -->
+    <div class="activity-header">Suggested Activity</div>
       <div class="activity-card">
-    <!-- Activity Name -->
-    <div class="activity-name">${activityName}</div>
-    
-    <!-- Activity Info -->
-    <div class="activity-info">
-        <!-- Temperature Range -->
-        <div class="activity-item">
-            <div class="label">Ideal Temp</div>
-            <div class="value">${minTemp}°C - ${maxTemp}°C</div>
-        </div>
-        <!-- UV Index -->
-        <div class="activity-item">
-            <div class="label">Notes</div>
-            <div class="value">${description}</div>
-        </div>
+    <!-- Activity Icon and Name -->
+    <div class="activity-icon">
+        <img src="${image_path}" alt="Activity Icon">
+        <div class="activity-name">${activityName}</div>
     </div>
-</div>`
+    
+    <!-- Activity Details Section -->
+    <div class="activity-details">
+              
+        <!-- Notes about the activity -->
+        <div class="activity-notes">
+            <img src="/static/note.png" alt="Notes Icon">
+            <div class="notes-text">${description}</div>
+        </div>
+
+        <!-- Ideal Temperature Range -->
+        <div class="activity-temp">
+            <img src="/static/temp_icon.png" alt="Temperature Icon">
+            <div>
+                <div class="label">Ideal Temperature:</div>
+                <div class="value">${minTemp}°C - ${maxTemp}°C</div>
+            </div>
+        </div>
+
+    </div>
+</div>
+`
     }
 
         let chatbox = document.getElementById("chatbox");
