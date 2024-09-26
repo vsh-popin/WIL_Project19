@@ -58,6 +58,21 @@ def is_weather_related(user_input):
             return True
     return False
 
+def is_suggestion_trip_related(user_input):
+    # Define trip-related keywords
+    trip_keywords = [
+        'suggestion', 'suggest', 'recommend', 'guide', 'trip', 'tour',
+        'vacation', 'holiday', 'itinerary', 'excursion', 'adventure', 
+        'destination', 'explore', 'getaway', 'plan', 'route', 
+        'journey', 'travel', 'sightseeing', 'roadtrip', 'visit'
+    ]
+    # Check if any weather-related keywords are in the user input
+    for keyword in trip_keywords:
+        if re.search(r'\b' + re.escape(keyword) + r'\b', user_input, re.IGNORECASE):
+            return True
+    return False
+
+
 def preprocess_relative_dates(user_input):
     user_input_lower = user_input.lower()
     
