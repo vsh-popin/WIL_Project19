@@ -8,9 +8,7 @@ import dateparser
 import configparser
 #import pandas as pd
 import torch
-#from sklearn.preprocessing import MinMaxScaler
 from models.predict_model import TCNWeatherPredictor,TemporalBlock
-#from models.rule_base import WeatherRecommender 
 import models.func as rb
 
 app = Flask(__name__, static_folder="templates/static")
@@ -38,7 +36,7 @@ def before_request(): # Initialize the session variables
         session['date'] = None
         session['date_text'] = None
     session['trip'] = None
-    session['trip_detail'] = None
+    #session['trip_detail'] = None
 
 @app.route("/get", methods=["POST"])
 def get_bot_response():
@@ -54,8 +52,7 @@ def get_bot_response():
     print("date=", session['date'])
     print("city=", session['city'])
     print("trip=", trip_check)
-    session['trip'] = trip_check
-    #print(session['trip'] , session['trip_detail'])
+    print("Detail", session['trip_detail'])
     # If both city and date are provided in the same input
 
     if city and date:
@@ -72,7 +69,6 @@ def get_bot_response():
             response,job_type = suggest_trip_based_on_weather()
 
         return jsonify({"message": response,"job_type": job_type})
-        #return response
 
     # If only city is detected
     elif city:
@@ -85,8 +81,9 @@ def get_bot_response():
                 response,job_type = suggest_trip_based_on_weather()
             reset_session()
         else:
-            return f"Cool! I have got [{city}] down. When do you need the weather for? You can say something like 'tomorrow' or 'in 3 days'.",0
-
+            response,job_type = f"Cool! I have got [{city}] down. When do you need the weather for? You can say something like 'tomorrow' or 'in 3 days'.",0
+            return jsonify({"message": response,"job_type": job_type})
+        
     # If only a date is detected
     elif date:
         session['date'] = date
@@ -104,6 +101,7 @@ def get_bot_response():
 
     # If neither city nor date is found in the input
     else:
+        if session['trip'] == None:   session['trip'] = trip_check
         if session['city']:
             response,job_type = f"You're asking about the weather in [{session['city']}]. Now, when do you need the forecast? Maybe 'tomorrow' or 'in a few days'?",0
             return jsonify({"message": response,"job_type": job_type})
@@ -160,14 +158,10 @@ def get_weather(city, date=None):
         scaler = weather_model.load_scaler('./models/scaler.pkl')
         data_scaled = weather_model.scale_data(scaler,df)
         
-        #model = weather_model.load_model('./models/CNN_Model_12Sep.pth')
         model= torch.load('./models/tcn_6_attr.pth', map_location=torch.device('cpu'))
         model.eval()
-    
-        # Make prediction
+
         predicted_values = weather_model.make_prediction(model, data_scaled)
-        #for row in (predicted_values):
-        #    print(["{:.2f}".format(x) for x in row])
         
         weather_report = generate_weather_report(predicted_values, city, date)
 
@@ -217,8 +211,6 @@ def reset_session():
     session['date'] = None
     session['date_text'] = None
 
-    #session['state'] = 'waiting_for_trip_suggestion'
-    
 def extract_time_from_input(user_input):
 
     processed_date, msg = reg.preprocess_relative_dates(user_input)
