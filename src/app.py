@@ -106,7 +106,7 @@ def get_bot_response():
             response,job_type = f"You're asking about the weather in [{session['city']}]. Now, when do you need the forecast? Maybe 'tomorrow' or 'in a few days'?",0
             return jsonify({"message": response,"job_type": job_type})
         elif session['date']:
-            response,job_type = f"I've noted [{session['date_text']}]. Could you let me know which Australian city you'd like the weather for?",0
+            response,job_type = f"Got it! The date is [{session['date_text']}]. Now, which city in Australia are you interested in?",0
             return jsonify({"message": response,"job_type": job_type})
         elif session['trip'] and session['trip_detail']:
             response,job_type = suggest_trip_based_on_weather()
@@ -250,7 +250,7 @@ def suggest_trip_based_on_weather():
         activity_details = rb.get_random_static()
         return activity_details,2
     else:
-        return "I don't have enough information to suggest a trip. Please ask for the weather first.",0
+        return "It seems I don't have enough details yet to suggest a trip. How about asking for the weather first, and then I can help you plan your day?",0
 
 if __name__ == "__main__":
     app.run(debug=True)
