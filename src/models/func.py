@@ -1,7 +1,45 @@
 import os
 import random
+import ast
 # from test_code.rules3 import WeatherRecommender
 from experta import *
+
+# Function to get random activity from static2.txt
+def get_random_static():
+    try:
+        # Get the full path to static2.txt
+        script_dir = os.path.dirname(__file__)  # Get the directory of the current script
+        file_path = os.path.join(script_dir, 'static2.txt')  # Create the full path
+
+        # Open and read the static2.txt file
+        activity = []
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            activities = [ast.literal_eval(line.strip()) for line in lines]  # Parse the activity list from each line
+            
+            # Randomly select one activity
+            selected_activity = random.choice(activities)
+            
+            # Extract the details of the selected activity
+            activity_name = selected_activity[0]
+            description = selected_activity[1]
+            min_temp = selected_activity[2]
+            max_temp = selected_activity[3]
+            uv_index = selected_activity[4]
+            
+            # Print the randomly selected activity
+            print(f"\n{activity_name}")
+            print(f"{description}\n")
+            print(f"Temperature Range: {min_temp}°C - {max_temp}°C")
+            print(f"UV Index: {uv_index}")
+            activity = [activity_name,description,min_temp,max_temp,uv_index]
+    except FileNotFoundError:
+        print("Error: 'static2.txt' file not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    
+    return activity
+
 
 def get_random_activity():
     try:

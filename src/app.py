@@ -10,7 +10,7 @@ import configparser
 import torch
 #from sklearn.preprocessing import MinMaxScaler
 from models.predict_model import TCNWeatherPredictor,TemporalBlock
-from models.rule_base import WeatherRecommender 
+#from models.rule_base import WeatherRecommender 
 import models.func as rb
 
 app = Flask(__name__, static_folder="templates/static")
@@ -38,7 +38,7 @@ def before_request(): # Initialize the session variables
         session['date'] = None
         session['date_text'] = None
     session['trip'] = None
-    #session['trip_detail'] = None
+    session['trip_detail'] = None
 
 @app.route("/get", methods=["POST"])
 def get_bot_response():
@@ -51,10 +51,10 @@ def get_bot_response():
     city = reg.find_australian_city_in_input(user_text)
     trip_check = reg.is_suggestion_trip_related(user_text)
     # Debugging prints
-    print("date=", date)
-    print("city=", city)
+    print("date=", session['date'])
+    print("city=", session['city'])
     print("trip=", trip_check)
-    #session['trip'] = trip_check
+    session['trip'] = trip_check
     #print(session['trip'] , session['trip_detail'])
     # If both city and date are provided in the same input
 
@@ -68,7 +68,6 @@ def get_bot_response():
         # Reset session variables after use
         reset_session()
                 # Ask a follow-up question
-        #session['state'] = 'waiting_for_yes_no'  # Set the state to wait for the user's yes/no response
         if trip_check:
             response,job_type = suggest_trip_based_on_weather()
 
@@ -101,18 +100,22 @@ def get_bot_response():
             reset_session()
         else:
             response,job_type = f"I have got the time [{session['date_text']}]. Now, let me know which city in Australia you would like the weather for.",0
-            #return 
+            return jsonify({"message": response,"job_type": job_type})
 
     # If neither city nor date is found in the input
     else:
         if session['city']:
-            return f"You're asking about the weather in [{session['city']}]. Now, when do you need the forecast? Maybe 'tomorrow' or 'in a few days'?",0
+            response,job_type = f"You're asking about the weather in [{session['city']}]. Now, when do you need the forecast? Maybe 'tomorrow' or 'in a few days'?",0
+            return jsonify({"message": response,"job_type": job_type})
         elif session['date']:
-            return f"I've noted [{session['date_text']}]. Could you let me know which Australian city you'd like the weather for?",0
+            response,job_type = f"I've noted [{session['date_text']}]. Could you let me know which Australian city you'd like the weather for?",0
+            return jsonify({"message": response,"job_type": job_type})
         elif session['trip'] and session['trip_detail']:
             response,job_type = suggest_trip_based_on_weather()
+            return jsonify({"message": response,"job_type": job_type})
         else:
-            return "Could you tell me both a city in Australia and a time period you're interested in?",0
+            response,job_type = "Could you tell me both a city in Australia and a time period you're interested in?",0
+            return jsonify({"message": response,"job_type": job_type})
 
     return jsonify({"message": response,"job_type": job_type})
 
@@ -170,15 +173,31 @@ def get_weather(city, date=None):
 
         return weather_report,1
     except Exception as e:
-        return f"Sorry, I couldn't retrieve the weather for {city}. Error: {str(e)}"
+        return f"Sorry, I couldn't retrieve the weather for {city}. Error: {str(e)}",0
     
 def generate_weather_report(predicted_values, city, date):
 
     weather_report = []
     #max_temp,min_temp,wind_speed,precipitation,pressure,uv_index
     for i, row in enumerate(predicted_values[:1]):  # Only consider the first row if multiple rows exist
+        # Extract and format each value based on your requirements
+        max_temp = round(float(row[0]))  
+        min_temp = round(float(row[1]))  
+        wind_speed = round(float(row[2]), 1) 
+        precipitation = round(float(row[3]), 1) 
+        pressure = round(float(row[4])) 
+        uv_index = round(float(row[5]))  
 
-        weather_report = row.tolist() 
+        # # Create the weather report
+        weather_report = [
+            max_temp,    
+            min_temp,     
+            wind_speed,  
+            precipitation,  
+            pressure,    
+            uv_index
+        ]
+        #weather_report = row.tolist() 
         weather_report.append(str(city))
         weather_report.append(str(date.strftime('%A,%d %B %Y')))
         
@@ -188,7 +207,7 @@ def generate_weather_report(predicted_values, city, date):
         #trip_detail.append(str(city))
         #weather_report = trip_detail
         # Store the array in session
-        #session['trip_detail'] = trip_detail
+        session['trip_detail'] = weather_report
     
     return weather_report  
 
@@ -227,14 +246,16 @@ def suggest_trip_based_on_weather():
  
     if session['trip_detail']:
         session['trip'] = None
-        trip_detail = session['trip_detail']
-       #rec = rb.rec_activity(trip_detail[0])
+        #trip_detail = session['trip_detail']
+        
+        #rec = rb.rec_activity(trip_detail[0])
         #print(rec)
         #return "test"
         #trip_detail = session['trip_detail']
         #return f"{rec}"
         #Activity name,Description,Ideal temp,Location
-        activity_details = ["Activity name", "Description", "Ideal temp", "Location"]
+        #activity_details = ["Activity name", "Description", "Ideal temp", "Location"]
+        activity_details = rb.get_random_static()
         return activity_details,2
     else:
         return "I don't have enough information to suggest a trip. Please ask for the weather first.",0
