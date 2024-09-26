@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }} " type="text/css" media="all" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 
 
@@ -18,6 +20,7 @@
         <div id="chatbox">
             <p class="botText"><span>Welcome! Ask me anything about today's weather or where to visit.</span></p>
         </div>
+        
         <div class="suggestions">
             <!-- Suggested questions -->
             <button class="suggestion-btn">What's the weather look like today?</button>
@@ -56,20 +59,93 @@ document.querySelectorAll('.suggestion-btn').forEach(button => {
 
 function sendMessage(text = null) {
     let userText = text || document.getElementById("textInput").value;
-    if (!userText.trim()) return; // Avoid sending empty messages
+    // userText = String(userText)
+    // console.log(typeof(userText))
+    // if (!userText.trim()) return; // Avoid sending empty messages
 
     document.getElementById("chatbox").innerHTML += `<div class="userText"><span>${userText}</span></div>`;
 
     let formData = new FormData();
     formData.append("msg", userText);
-
+    document.getElementById("textInput").value = "";  // Clear input after send
     fetch("/get", {
         method: "POST",
         body: formData
-    }).then(response => response.text())
-    .then(text => {
-        document.getElementById("chatbox").innerHTML += `<div class="botText"><span>${text}</span></div>`; //apart from bot text 
-        document.getElementById("textInput").value = "";  // Clear input after send
+    }).then(response => response.json())
+    .then(data => {
+      let flagType = data.job_type;
+      console.log(data)
+      
+    if(flagType == "0"){ // Normal message
+        let message = data.message
+        document.getElementById("chatbox").innerHTML += `<div class="botText"><span>${message}</span></div>`; //apart from bot text
+    }
+    else if(flagType == "1"){ // Weather Card
+        let message = data.message
+        let maxTemp = data.message[0]
+        let minTemp = data.message[1]
+        let windSpeed = data.message[2]
+        let precipitation = data.message[3]
+        let pressure = data.message[4]
+        let uvIndex = data.message[5]
+        let city = data.message[6]
+        let time = data.message[7]
+        let image_path = ""
+        if(precipitation < 4) {
+          if(uvIndex < 2){
+            image_path = "/static/cloud.png"
+          }
+          else if(uvIndex < 5){
+            image_path = "/static/cloud_sun.png"
+          }
+          else{
+            image_path = "/static/sun.png"
+          }
+        }
+        else{
+          image_path = "/static/rain.png"
+        }
+
+        document.getElementById("chatbox").innerHTML += `<div class="weather-card">
+        <div class="city">${city}</div>
+        <!-- Date and Time -->
+        <div class="datetime">${time}</div>
+        <!-- Weather Icon -->
+        <div class="weather-icon">
+            <img src="${image_path}" alt="Weather Icon" width="120" height="120">
+        </div>
+        <div class="weather-info">
+            <div class="weather-item">
+                <div class="label">Max Temp</div>
+                <div class="value">${maxTemp}°C</div>
+            </div>
+            <div class="weather-item">
+                <div class="label">Min Temp</div>
+                <div class="value">${minTemp}°C</div>
+            </div>
+            <div class="weather-item">
+                <div class="label">Wind Speed</div>
+                <div class="value">${windSpeed} km/h</div>
+            </div>
+            <div class="weather-item">
+                <div class="label">Pressure</div>
+                <div class="value">${pressure} hPa</div>
+            </div>
+            <div class="weather-item">
+                <div class="label">Precipitation</div>
+                <div class="value">${precipitation} mm</div>
+            </div>
+            <div class="weather-item">
+                <div class="label">UV Index</div>
+                <div class="value">${uvIndex}</div>
+            </div>
+        </div>
+    </div>`
+    }
+    else if(flagType == "2"){ // Activity Card
+
+    }
+
         let chatbox = document.getElementById("chatbox");
         chatbox.scrollTop = chatbox.scrollHeight;
     });

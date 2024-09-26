@@ -1,6 +1,6 @@
 import os
 import random
-from test_code.rules3 import WeatherRecommender
+# from test_code.rules3 import WeatherRecommender
 from experta import *
 
 def get_random_activity():
