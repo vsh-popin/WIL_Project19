@@ -76,12 +76,11 @@ function sendMessage(text = null) {
       let flagType = data.job_type;
       console.log(data)
       
-    if(flagType == "0"){ // Normal message
+    if(flagType == 0){ // Normal message
         let message = data.message
         document.getElementById("chatbox").innerHTML += `<div class="botText"><span>${message}</span></div>`; //apart from bot text
     }
-    else if(flagType == "1"){ // Weather Card
-        let message = data.message
+    else if(flagType == 1){ // Weather Card
         let maxTemp = data.message[0]
         let minTemp = data.message[1]
         let windSpeed = data.message[2]
@@ -106,7 +105,8 @@ function sendMessage(text = null) {
           image_path = "/static/rain.png"
         }
 
-        document.getElementById("chatbox").innerHTML += `<div class="weather-card">
+        document.getElementById("chatbox").innerHTML += `
+        <div class="weather-card">
         <div class="city">${city}</div>
         <!-- Date and Time -->
         <div class="datetime">${time}</div>
@@ -142,8 +142,32 @@ function sendMessage(text = null) {
         </div>
     </div>`
     }
-    else if(flagType == "2"){ // Activity Card
+    else if(flagType == 2){ // Activity Card
+      let activityName = data.message[0]
+      let description = data.message[1]
+      let maxTemp = data.message[2]
+      let minTemp = data.message[3]
+      let uvIndex = data.message[4]
 
+      document.getElementById("chatbox").innerHTML += `
+      <div class="activity-card">
+    <!-- Activity Name -->
+    <div class="activity-name">${activityName}</div>
+    
+    <!-- Activity Info -->
+    <div class="activity-info">
+        <!-- Temperature Range -->
+        <div class="activity-item">
+            <div class="label">Ideal Temp</div>
+            <div class="value">${minTemp}°C - ${maxTemp}°C</div>
+        </div>
+        <!-- UV Index -->
+        <div class="activity-item">
+            <div class="label">Notes</div>
+            <div class="value">${description}</div>
+        </div>
+    </div>
+</div>`
     }
 
         let chatbox = document.getElementById("chatbox");

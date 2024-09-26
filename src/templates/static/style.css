@@ -30,7 +30,7 @@ body, html {
   
   .chat-container {
     width: 100%;
-    max-width: 600px;
+    /* max-width: 600px; */
     height: 100vh;
     margin: auto;
     border-radius: 8px;
@@ -207,4 +207,73 @@ body, html {
   color: #444;
 }
   
-  
+#chatbox
+/* Container for the activity card */
+.activity-card {
+  background-color: #e8f7fa;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 15px 0;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Header with activity name */
+.activity-card .activity-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+/* Description text */
+.activity-card .description {
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* Activity data section */
+.activity-card .activity-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+/* Individual activity data item */
+.activity-card .activity-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Label for each activity item */
+.activity-card .activity-item .label {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+/* Value for each activity item */
+.activity-card .activity-item .value {
+  font-size: 16px;
+  font-weight: bold;
+  color: #444;
+}
+
+/* UV suggestion */
+.activity-card .uv-suggestion {
+  font-size: 14px;
+  color: #444;
+  margin-top: 10px;
+  text-align: center;
+  font-style: italic;
+}
