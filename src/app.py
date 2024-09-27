@@ -35,8 +35,10 @@ def before_request(): # Initialize the session variables
     if 'date' not in session:
         session['date'] = None
         session['date_text'] = None
-    session['trip'] = None
-    #session['trip_detail'] = None
+    if 'trip' not in session:
+        session['trip'] = None
+    if 'trip_detail' not in session:
+        session['trip_detail'] = None
 
 @app.route("/get", methods=["POST"])
 def get_bot_response():
@@ -59,7 +61,7 @@ def get_bot_response():
         session['city'] = city
         session['date'] = date
         session['date_text'] = msg
-        session['trip'] = trip_check
+        if session['trip'] == None:   session['trip'] = trip_check
 
         response,job_type = get_weather(city, date)
         # Reset session variables after use
@@ -102,6 +104,8 @@ def get_bot_response():
     # If neither city nor date is found in the input
     else:
         if session['trip'] == None:   session['trip'] = trip_check
+        print("t",session['trip'])
+        print("t",session['trip_detail'])
         if session['city']:
             response,job_type = f"You're asking about the weather in [{session['city']}]. Now, when do you need the forecast? Maybe 'tomorrow' or 'in a few days'?",0
             return jsonify({"message": response,"job_type": job_type})
@@ -210,6 +214,7 @@ def reset_session():
     session['city'] = None
     session['date'] = None
     session['date_text'] = None
+    session['trip'] = None
 
 def extract_time_from_input(user_input):
 
